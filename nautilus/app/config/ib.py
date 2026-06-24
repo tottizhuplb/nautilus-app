@@ -1,5 +1,7 @@
 import os
 
+from nautilus_trader.adapters.interactive_brokers.config import IBMarketDataTypeEnum
+
 from app.config.env import load_conf_env
 
 load_conf_env()
@@ -7,9 +9,9 @@ load_conf_env()
 IB_HOST = os.getenv("IB_HOST", "ib-gateway")
 IB_PORT = int(os.getenv("IB_PORT", "4003"))
 IB_CLIENT_ID = int(os.getenv("IB_CLIENT_ID", "10"))
-IB_GATEWAY = os.getenv("IB_GATEWAY", "true").lower() == "true"
-IB_ACCOUNT_ID = os.getenv("TWS_ACCOUNT", "")
-MARKET_DATA_TYPE = os.getenv("IB_MARKET_DATA_TYPE", "REALTIME")
+
+_market_data_type = os.getenv("IB_MARKET_DATA_TYPE", "REALTIME").upper()
+MARKET_DATA_TYPE = IBMarketDataTypeEnum[_market_data_type]
 
 SYMBOLS = {
     "US": {
