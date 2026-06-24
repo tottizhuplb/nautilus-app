@@ -1,0 +1,7 @@
+{
+  "python.defaultInterpreterPath": "/usr/local/bin/python",
+  "python.analysis.typeCheckingMode": "basic",
+  "python.analysis.useLibraryCodeForTypes": true,
+  "python.analysis.stubPath": "./typings",
+  "python.analysis.indexing": true
+}

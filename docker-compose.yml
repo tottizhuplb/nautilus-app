@@ -61,7 +61,6 @@ services:
       redis:
         condition: service_started
     environment:
-      PYTHONUNBUFFERED: "1"
       IB_HOST: ib-gateway
       REDIS_HOST: redis
       REDIS_PORT: 6379

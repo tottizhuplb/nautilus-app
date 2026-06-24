@@ -1,12 +1,15 @@
+from nautilus_trader.model.identifiers import InstrumentId
+from nautilus_trader.trading.config import StrategyConfig
 from nautilus_trader.trading.strategy import Strategy
-from nautilus_trader.trading.strategy import StrategyConfig
 
 
 class PrintTicksConfig(StrategyConfig, frozen=True):
-    instrument_ids: list[str]
+    instrument_ids: list[InstrumentId]
 
 
 class PrintTicksStrategy(Strategy):
+    config: PrintTicksConfig
+
     def __init__(self, config: PrintTicksConfig):
         super().__init__(config)
 

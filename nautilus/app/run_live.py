@@ -6,27 +6,19 @@ from nautilus_trader.config import LoggingConfig
 from nautilus_trader.config import LiveDataEngineConfig
 from nautilus_trader.config import LiveExecEngineConfig
 from nautilus_trader.config import LiveRiskEngineConfig
-from nautilus_trader.config import LiveStrategiesConfig
-from nautilus_trader.config import TraderId
 from nautilus_trader.config import TradingNodeConfig
 from nautilus_trader.live.node import TradingNode
+from nautilus_trader.model.identifiers import TraderId
 
 from app.config.ib import IB_CLIENT_ID
 from app.config.ib import IB_HOST
 from app.config.ib import IB_PORT
 from app.config.ib import MARKET_DATA_TYPE
-from app.config.ib import SYMBOLS
+from app.config.ib import build_instrument_ids
+from app.config.instance import allocate_instance_id
+from app.config.streaming import build_streaming_config
 from app.strategies.print_ticks import PrintTicksConfig
 from app.strategies.print_ticks import PrintTicksStrategy
-
-
-def build_instrument_ids() -> list[str]:
-    us = SYMBOLS["US"]
-    hk = SYMBOLS["HK"]
-    return [
-        f"{us['symbol']}.{us['exchange']}",
-        f"{hk['symbol']}.{hk['exchange']}",
-    ]
 
 
 def main() -> None:
@@ -51,6 +43,7 @@ def main() -> None:
 
     node_config = TradingNodeConfig(
         trader_id=TraderId("TRADER-001"),
+        instance_id=allocate_instance_id(),
         logging=LoggingConfig(log_level="INFO"),
         data_engine=LiveDataEngineConfig(
             time_bars_timestamp_on_close=False,
@@ -59,7 +52,7 @@ def main() -> None:
         risk_engine=LiveRiskEngineConfig(bypass=True),
         exec_engine=LiveExecEngineConfig(reconciliation=False),
         data_clients={IB: data_client_config},
-        strategies=LiveStrategiesConfig(strategies=[]),
+        streaming=build_streaming_config(),
         timeout_connection=90.0,
     )
 
