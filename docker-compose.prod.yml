@@ -1,0 +1,13 @@
+services:
+  nautilus:
+    environment:
+      NAUTILUS_ENV: prod
+    build:
+      context: ./nautilus
+      dockerfile: Dockerfile.prod
+    image: nautilus-prod:latest
+    working_dir: /app
+    restart: unless-stopped
+    command: ["python", "-m", "app.run_live"]
+    volumes:
+      - ./nautilus/data:/app/data

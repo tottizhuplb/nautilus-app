@@ -1,0 +1,27 @@
+services:
+  nautilus:
+    environment:
+      NAUTILUS_ENV: dev
+    build:
+      context: ./nautilus
+      dockerfile: Dockerfile.dev
+    image: nautilus-dev:latest
+    working_dir: /workspace
+    command: ["bash", "-lc", "sleep infinity"]
+    stdin_open: true
+    tty: true
+    volumes:
+      - ./nautilus:/workspace
+      - cargo-registry:/usr/local/cargo/registry
+      - cargo-git:/usr/local/cargo/git
+      - cargo-target:/workspace/target
+      - pip-cache:/root/.cache/pip
+    ports:
+      - "127.0.0.1:8888:8888"
+      - "127.0.0.1:3000:3000"
+
+volumes:
+  cargo-registry:
+  cargo-git:
+  cargo-target:
+  pip-cache:

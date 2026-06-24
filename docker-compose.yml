@@ -1,0 +1,73 @@
+name: trading-stack
+
+services:
+  ib-gateway:
+    image: ghcr.io/gnzsnz/ib-gateway:stable
+    container_name: ib-gateway
+    restart: unless-stopped
+    environment:
+      TWS_USERID: ${IBKR_USERID}
+      TWS_PASSWORD: ${IBKR_PASSWORD}
+      VNC_SERVER_PASSWORD: ${VNC_SERVER_PASSWORD:-debug123}
+      TRADING_MODE: ${TRADING_MODE:-live}
+      TWS_SETTINGS_PATH: /home/ibgateway/tws_settings
+      TWS_ACCEPT_INCOMING: accept
+      READ_ONLY_API: "no"
+      TWOFA_TIMEOUT_ACTION: restart
+      AUTO_RESTART_TIME: "11:59 AM"
+      RELOGIN_AFTER_TWOFA_TIMEOUT: "yes"
+      EXISTING_SESSION_DETECTED_ACTION: primary
+      ALLOW_BLIND_TRADING: "no"
+      TIME_ZONE: Etc/UTC
+      TZ: Etc/UTC
+    volumes:
+      - ./infra/ib-gateway/tws_settings:/home/ibgateway/tws_settings
+    ports:
+      - "127.0.0.1:4003:4003"
+      - "127.0.0.1:4004:4004"
+      - "127.0.0.1:5900:5900"
+    healthcheck:
+      # Check socat is LISTEN; do not open /dev/tcp to the API port (triggers
+      # Gateway "disconnected before version was sent").
+      test:
+        [
+          "CMD-SHELL",
+          "if [ \"$$TRADING_MODE\" = live ]; then port=4003; else port=4004; fi; pgrep -f \"TCP-LISTEN:$$port,\" >/dev/null",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 10
+      start_period: 120s
+    networks:
+      - trading
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "127.0.0.1:6379:6379"
+    volumes:
+      - ./infra/redis/data:/data
+    networks:
+      - trading
+
+  nautilus:
+    container_name: nautilus
+    depends_on:
+      ib-gateway:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    environment:
+      PYTHONUNBUFFERED: "1"
+      IB_HOST: ib-gateway
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    networks:
+      - trading
+
+networks:
+  trading:
+    driver: bridge

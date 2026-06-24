@@ -1,0 +1,5 @@
+nautilus_trader[docker,ib]
+redis
+jupyterlab
+ipython
+python-dotenv
